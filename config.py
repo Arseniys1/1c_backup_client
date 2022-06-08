@@ -17,6 +17,8 @@ def load_configs():
     for config_dir in configs_dirs:
         cfg_object = Config(config_dir)
         for config_file in os.listdir(CONFIGS_PATH + "\\" + config_dir):
+            if config_file == "scripts":
+                continue
             with open(CONFIGS_PATH + "\\" + config_dir + "\\" + config_file, encoding="utf-8") as f:
                 lines = f.readlines()
                 lines_filtered = []
