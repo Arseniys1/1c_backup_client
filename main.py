@@ -1,16 +1,17 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from config import config, ROOT_DIR, CONFIG_PATH, CONFIGS_PATH, LOGS_PATH, configs, configs_dirs
+from log import logger
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+logger.info("Найдены директории с файлами конфигурации: " + ",".join(configs_dirs))
+for config_obj in configs:
+    for file in config_obj.files.keys():
+        logger.info("Найден файл конфигурации: " + config_obj.dir_name + " -> " + file)
 
 
-# Press the green button in the gutter to run the script.
+def main():
+    pass
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    main()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
