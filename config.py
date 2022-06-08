@@ -8,6 +8,7 @@ ROOT_DIR = os.path.abspath(os.curdir)
 CONFIG_PATH = ROOT_DIR + "\\config.env"
 CONFIGS_PATH = ROOT_DIR + "\\configs"
 LOGS_PATH = ROOT_DIR + "\\logs"
+BACKUPS_PATH = ROOT_DIR + "\\backups"
 
 configs_dirs = [config_dir for config_dir in os.listdir(CONFIGS_PATH) if
                 os.path.isdir(CONFIGS_PATH + "\\" + config_dir)]

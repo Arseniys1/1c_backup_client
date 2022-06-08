@@ -1,0 +1,1 @@
+${CONFIGURATION_NAME}-${datetime_format:%d/%m/%Y в %H:%M:%S}.zip
