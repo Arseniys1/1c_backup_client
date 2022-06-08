@@ -9,6 +9,8 @@ def backup(_config, time):
         if not launch_scripts(_config.files["before_backup_scripts.txt"], "Скрипт перед запуском бэкапа: "):
             logger.info("Отмена запуска бэкапа. Не все скрипты завершились с кодом 1")
 
+    if "after_backup_scripts.txt" in _config.files:
+        launch_scripts(_config.files["after_backup_scripts.txt"], "Скрипт после запуска бэкапа: ")
     logger.info("Завершение бэкапа: " + _config.dir_name)
 
 

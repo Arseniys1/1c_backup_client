@@ -3,6 +3,7 @@ from log import logger
 from backup import backup, launch_scripts
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import datetime
+import time as _time
 
 
 logger.info("Найдены директории с файлами конфигурации: " + ",".join(configs_dirs))
@@ -23,6 +24,7 @@ def main():
             for time in _config.files["time.txt"]:
                 if now_hours_minutes == time or True:
                     future_list.append(executor.submit(backup, _config, time))
+                    _time.sleep(5)
 
 
 if __name__ == '__main__':
