@@ -1,2 +1,2 @@
 print(123)
-exit(0)
+exit(1)

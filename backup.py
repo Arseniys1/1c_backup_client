@@ -1,5 +1,7 @@
 import datetime
+import os
 
+from config import BACKUPS_PATH
 from log import logger
 import subprocess
 import zipfile
@@ -13,6 +15,16 @@ def backup(_config, time):
             logger.info("Отмена запуска бэкапа. Не все скрипты завершились с кодом 1")
 
     backup_filename = backup_filename_format(_config)
+    configuration_backups_folder = BACKUPS_PATH + "\\" + _config.dir_name
+    if not os.path.exists(configuration_backups_folder):
+        os.makedirs(configuration_backups_folder)
+
+    for backup_path in _config.files["path.txt"]:
+        z = zipfile.ZipFile(configuration_backups_folder + "\\" + backup_filename, "w")
+        for root, dirs, files in os.walk(backup_path):
+            for file in files:
+                z.write(os.path.join(root, file))
+        z.close()
 
     if "after_backup_scripts.txt" in _config.files:
         launch_scripts(_config.files["after_backup_scripts.txt"], "Скрипт после запуска бэкапа: ")
