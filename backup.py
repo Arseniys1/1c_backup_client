@@ -14,17 +14,7 @@ def backup(_config, time):
         if not launch_scripts(_config.files["before_backup_scripts.txt"], "Скрипт перед запуском бэкапа: "):
             logger.info("Отмена запуска бэкапа. Не все скрипты завершились с кодом 1")
 
-    backup_filename = backup_filename_format(_config)
-    configuration_backups_folder = BACKUPS_PATH + "\\" + _config.dir_name
-    if not os.path.exists(configuration_backups_folder):
-        os.makedirs(configuration_backups_folder)
-
-    for backup_path in _config.files["path.txt"]:
-        z = zipfile.ZipFile(configuration_backups_folder + "\\" + backup_filename, "w")
-        for root, dirs, files in os.walk(backup_path):
-            for file in files:
-                z.write(os.path.join(root, file))
-        z.close()
+    archive_path = make_archive(_config)
 
     if "after_backup_scripts.txt" in _config.files:
         launch_scripts(_config.files["after_backup_scripts.txt"], "Скрипт после запуска бэкапа: ")
@@ -63,3 +53,30 @@ def backup_filename_format(_config):
     filename = filename.replace(datetime_format_var_start + datetime_format + "}",
                                 datetime.datetime.now().strftime(datetime_format))
     return filename
+
+
+def make_archive(_config):
+    backup_filename = backup_filename_format(_config)
+    configuration_backups_folder = BACKUPS_PATH + "\\" + _config.dir_name
+    archive_path = configuration_backups_folder + "\\" + backup_filename
+    if not os.path.exists(configuration_backups_folder):
+        os.makedirs(configuration_backups_folder)
+
+    for backup_path in _config.files["path.txt"]:
+        z = zipfile.ZipFile(archive_path, "w")
+        for root, dirs, files in os.walk(backup_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                z.write(file_path)
+        z.close()
+
+    return archive_path
+
+
+def normalize_path(path):
+    path = os.path.normcase(path)
+    path = os.path.normpath(path)
+    path = os.path.realpath(path)
+    return path
+
+
