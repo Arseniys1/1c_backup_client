@@ -9,4 +9,4 @@ logging.basicConfig(
     ],
     encoding="utf-8"
 )
-logger = logging.getLogger("main")
+logger = logging.getLogger(__name__)

@@ -1,1 +1,1 @@
-python before_script.py
+python ${CURRENT_CONFIG_DIR}\scripts\before_script.py

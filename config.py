@@ -8,7 +8,6 @@ CONFIG_PATH = ROOT_DIR + "\\config.env"
 CONFIGS_PATH = ROOT_DIR + "\\configs"
 LOGS_PATH = ROOT_DIR + "\\logs"
 
-config = dotenv_values(CONFIG_PATH)
 configs_dirs = [config_dir for config_dir in os.listdir(CONFIGS_PATH) if os.path.isdir(CONFIGS_PATH + "\\" + config_dir)]
 
 
@@ -24,13 +23,34 @@ def load_configs():
                 lines_filtered = []
                 for line in lines:
                     if line[0] != "#" and line != "\n" and line != "\r\n":
-                        line = line.replace("\n", "")
-                        line = line.replace("\r\n", "")
-                        lines_filtered.append(line)
+                        lines_filtered.append(replace_in_line(config_dir, line))
                 cfg_object.add_file(config_file, lines_filtered)
         _configs.append(cfg_object)
     return _configs
 
+
+def config_types(_config):
+    int_keys = ["SERVER_PING_TIMEOUT", "SERVER_PING_TIME", "MAX_WORKERS"]
+    bool_keys = ["SERVER_PING"]
+    for key in _config.keys():
+        for _type_key in int_keys:
+            if key == _type_key:
+                _config[key] = int(_config[key])
+        for _type_key in bool_keys:
+            if key == _type_key:
+                _config[key] = bool(_config[key])
+    return _config
+
+
+def replace_in_line(config_dir, line):
+    line = line.replace("\n", "")
+    line = line.replace("\r\n", "")
+    line = line.replace("${CURRENT_CONFIG_DIR}", CONFIGS_PATH + "\\" + config_dir)
+    return line
+
+
+config = dotenv_values(CONFIG_PATH)
+config = config_types(config)
 
 configs = load_configs()
 
