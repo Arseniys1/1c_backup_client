@@ -5,6 +5,7 @@ import os
 from exceptions.ConfigFileNotFound import ConfigFileNotFound
 
 ROOT_DIR = os.path.abspath(os.curdir)
+SYSTEM_ROOT_DIR = os.path.abspath(os.sep)
 CONFIG_PATH = ROOT_DIR + "\\config.env"
 CONFIGS_PATH = ROOT_DIR + "\\configs"
 LOGS_PATH = ROOT_DIR + "\\logs"
@@ -82,6 +83,8 @@ def replace_in_line(config_dir, line):
     line = line.replace("\n", "")
     line = line.replace("\r\n", "")
     line = line.replace("${CURRENT_CONFIG_DIR}", CONFIGS_PATH + "\\" + config_dir)
+    line = line.replace("${ROOT_DIR}", ROOT_DIR)
+    line = line.replace("${SYSTEM_ROOT_DIR}", SYSTEM_ROOT_DIR)
     return line
 
 
