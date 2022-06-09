@@ -36,7 +36,7 @@ def launch_scripts(scripts, log_msg=None):
 
 
 def backup_filename_format(_config):
-    default_format = "${CONFIGURATION_NAME}-${datetime_format:%m/%d/%Y, %H:%M:%S}.zip"
+    default_format = "${CONFIGURATION_NAME}-${datetime_format:%d-%m-%Y в %H-%M-%S}.zip"
     _format = None
     if "backup_filename_format" in _config.files:
         if len(_config.files["backup_filename_format"]) > 0:

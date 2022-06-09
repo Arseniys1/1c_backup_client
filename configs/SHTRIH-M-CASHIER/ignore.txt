@@ -1,4 +1,11 @@
 Новый текстовый документ.txt
 test/
+C:\1cdb {
+    test/
+}
 
+C:\{
+Windows/
+"Program Files/"
+}
 # коммент
