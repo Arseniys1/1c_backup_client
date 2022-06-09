@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from config import BACKUPS_PATH
+from config import BACKUPS_PATH, config
 from config_object import ConfigConstruct
 from log import logger
 import subprocess
@@ -18,6 +18,10 @@ def backup(_config, time):
             logger.info("Отмена запуска бэкапа. Не все скрипты завершились с кодом 1")
 
     archive_paths = make_archive(_config)
+
+    if config["DELETE_ARCHIVES_AFTER_BACKUP"]:
+        logger.info("Удаляю архивы после бэкапа")
+        delete_archives(archive_paths)
 
     if "after_backup_scripts" in _config.files:
         launch_scripts(_config.files["after_backup_scripts"], "Скрипт после запуска бэкапа: ")
@@ -104,5 +108,12 @@ def is_ignore(backup_path, file_path, ignore_value):
         elif os.path.isdir(ignore_path) and ignore_path in file_path:
             return True
     return False
+
+
+def delete_archives(archive_paths):
+    for archive_path in archive_paths:
+        if os.path.isfile(archive_path):
+            os.remove(archive_path)
+            logger.info("Удалил архив: " + archive_path)
 
 

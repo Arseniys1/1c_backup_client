@@ -68,7 +68,7 @@ def read_config(config_dir, config_path):
 
 def config_types(_config):
     int_keys = ["SERVER_PING_TIMEOUT", "SERVER_PING_TIME", "MAX_WORKERS"]
-    bool_keys = ["SERVER_PING"]
+    bool_keys = ["SERVER_PING", "DELETE_ARCHIVES_AFTER_BACKUP"]
     for key in _config.keys():
         for _type_key in int_keys:
             if key == _type_key:
