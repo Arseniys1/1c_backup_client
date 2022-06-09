@@ -6,7 +6,8 @@ from config_object import ConfigConstruct
 from log import logger
 import subprocess
 import zipfile
-import filecmp
+
+from _path import normalize_path, normalize_dir
 
 
 def backup(_config, time):
@@ -85,23 +86,23 @@ def make_archive(_config):
 
 
 def is_ignore(backup_path, file_path, ignore_value):
+    file_path = normalize_path(file_path)
     if type(ignore_value) is ConfigConstruct:
-        pass
+        for value in ignore_value.values:
+            value = normalize_dir(value)
+            ignore_path = backup_path + "\\" + ignore_value.name + "\\" + value
+            ignore_path = normalize_path(ignore_path)
+            if file_path == ignore_path:
+                return True
+            elif os.path.isdir(ignore_path) and ignore_path in file_path:
+                return True
     else:
         ignore_path = backup_path + "\\" + ignore_value
         ignore_path = normalize_path(ignore_path)
-        file_path = normalize_path(file_path)
         if file_path == ignore_path:
             return True
         elif os.path.isdir(ignore_path) and ignore_path in file_path:
             return True
     return False
-
-
-def normalize_path(path):
-    path = os.path.normcase(path)
-    path = os.path.normpath(path)
-    path = os.path.realpath(path)
-    return path
 
 

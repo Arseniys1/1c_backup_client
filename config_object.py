@@ -1,3 +1,6 @@
+from _path import normalize_dir, remove_space
+
+
 class Config:
     def __init__(self, dir_name) -> None:
         self.dir_name = dir_name
@@ -17,13 +20,13 @@ class Config:
                 brace_i = len(line) - 1
                 if line[brace_i] == "{":
                     construct_name = line[:brace_i]
+                    construct_name = normalize_dir(construct_name)
                     file_lines_slice = file_lines[i + 1:]
                     for ii, _line in enumerate(file_lines_slice):
                         if "}" in _line:
                             construct_values = file_lines_slice[:ii]
                             for iii, construct_value in enumerate(construct_values):
-                                construct_values[iii] = construct_value.replace(" ", "")
-                                construct_values[iii] = construct_value.replace("   ", "")
+                                construct_values[iii] = remove_space(construct_value)
                             new_file_lines.append(ConfigConstruct(construct_name, construct_values))
                             skip_construct_lines.append(_line)
                             break
