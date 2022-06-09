@@ -2,9 +2,11 @@ import datetime
 import os
 
 from config import BACKUPS_PATH
+from config_object import ConfigConstruct
 from log import logger
 import subprocess
 import zipfile
+import filecmp
 
 
 def backup(_config, time):
@@ -67,10 +69,33 @@ def make_archive(_config):
         for root, dirs, files in os.walk(backup_path):
             for file in files:
                 file_path = os.path.join(root, file)
-                z.write(file_path)
+                if "ignore" in _config.files:
+                    ignore = False
+                    for ignore_value in _config.files["ignore"]:
+                        if is_ignore(backup_path, file_path, ignore_value):
+                            ignore = True
+                            break
+                    if not ignore:
+                        z.write(file_path)
+                else:
+                    z.write(file_path)
         z.close()
 
     return archive_path
+
+
+def is_ignore(backup_path, file_path, ignore_value):
+    if type(ignore_value) is ConfigConstruct:
+        pass
+    else:
+        ignore_path = backup_path + "\\" + ignore_value
+        ignore_path = normalize_path(ignore_path)
+        file_path = normalize_path(file_path)
+        if file_path == ignore_path:
+            return True
+        elif os.path.isdir(ignore_path) and ignore_path in file_path:
+            return True
+    return False
 
 
 def normalize_path(path):
