@@ -25,7 +25,7 @@ def main():
                 # backup(_config, time)
                 if now_hours_minutes == time or True:
                     future_list.append(executor.submit(backup, _config, time))
-                    _time.sleep(5)
+                    _time.sleep(1000)
 
 
 if __name__ == '__main__':

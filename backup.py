@@ -14,6 +14,7 @@ def backup(_config, time):
     logger.info("Запуск бэкапа: " + _config.dir_name + " Время: " + time)
 
     if "before_backup_scripts" in _config.files:
+        logger.info("Запускаю скрипты перед запуском бэкапа")
         if not launch_scripts(_config.files["before_backup_scripts"], "Скрипт перед запуском бэкапа: "):
             logger.info("Отмена запуска бэкапа. Не все скрипты завершились с кодом 1")
 
@@ -24,6 +25,7 @@ def backup(_config, time):
         delete_archives(archive_paths)
 
     if "after_backup_scripts" in _config.files:
+        logger.info("Запускаю скрипты после запуска бэкапа")
         launch_scripts(_config.files["after_backup_scripts"], "Скрипт после запуска бэкапа: ")
     logger.info("Завершение бэкапа: " + _config.dir_name)
 
