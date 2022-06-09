@@ -1,2 +1,3 @@
-# 1c_backup_client
+# eaZy_backup_client
 SHTRIH-M: CASHIER db backup
+Клиент бэкапера
