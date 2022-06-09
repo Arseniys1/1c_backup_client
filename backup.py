@@ -61,11 +61,11 @@ def backup_filename_format(_config):
 def make_archive(_config):
     backup_filename = backup_filename_format(_config)
     configuration_backups_folder = BACKUPS_PATH + "\\" + _config.dir_name
-    archive_path = configuration_backups_folder + "\\" + backup_filename
     if not os.path.exists(configuration_backups_folder):
         os.makedirs(configuration_backups_folder)
 
-    for backup_path in _config.files["path"]:
+    for i, backup_path in enumerate(_config.files["path"]):
+        archive_path = configuration_backups_folder + "\\" + str(i + 1) + "-" + backup_filename
         z = zipfile.ZipFile(archive_path, "w")
         for root, dirs, files in os.walk(backup_path):
             for file in files:
