@@ -17,7 +17,7 @@ def backup(_config, time):
         if not launch_scripts(_config.files["before_backup_scripts"], "Скрипт перед запуском бэкапа: "):
             logger.info("Отмена запуска бэкапа. Не все скрипты завершились с кодом 1")
 
-    archive_path = make_archive(_config)
+    archive_paths = make_archive(_config)
 
     if "after_backup_scripts" in _config.files:
         launch_scripts(_config.files["after_backup_scripts"], "Скрипт после запуска бэкапа: ")
@@ -63,7 +63,7 @@ def make_archive(_config):
     configuration_backups_folder = BACKUPS_PATH + "\\" + _config.dir_name
     if not os.path.exists(configuration_backups_folder):
         os.makedirs(configuration_backups_folder)
-
+    archive_paths = []
     for i, backup_path in enumerate(_config.files["path"]):
         archive_path = configuration_backups_folder + "\\" + str(i + 1) + "-" + backup_filename
         z = zipfile.ZipFile(archive_path, "w")
@@ -80,9 +80,9 @@ def make_archive(_config):
                         z.write(file_path)
                 else:
                     z.write(file_path)
+        archive_paths.append(archive_path)
         z.close()
-
-    return archive_path
+    return archive_paths
 
 
 def is_ignore(backup_path, file_path, ignore_value):
