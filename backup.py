@@ -10,14 +10,14 @@ import zipfile
 def backup(_config, time):
     logger.info("Запуск бэкапа: " + _config.dir_name + " Время: " + time)
 
-    if "before_backup_scripts.txt" in _config.files:
-        if not launch_scripts(_config.files["before_backup_scripts.txt"], "Скрипт перед запуском бэкапа: "):
+    if "before_backup_scripts" in _config.files:
+        if not launch_scripts(_config.files["before_backup_scripts"], "Скрипт перед запуском бэкапа: "):
             logger.info("Отмена запуска бэкапа. Не все скрипты завершились с кодом 1")
 
     archive_path = make_archive(_config)
 
-    if "after_backup_scripts.txt" in _config.files:
-        launch_scripts(_config.files["after_backup_scripts.txt"], "Скрипт после запуска бэкапа: ")
+    if "after_backup_scripts" in _config.files:
+        launch_scripts(_config.files["after_backup_scripts"], "Скрипт после запуска бэкапа: ")
     logger.info("Завершение бэкапа: " + _config.dir_name)
 
 
@@ -38,9 +38,9 @@ def launch_scripts(scripts, log_msg=None):
 def backup_filename_format(_config):
     default_format = "${CONFIGURATION_NAME}-${datetime_format:%m/%d/%Y, %H:%M:%S}.zip"
     _format = None
-    if "backup_filename_format.txt" in _config.files:
-        if len(_config.files["backup_filename_format.txt"]) > 0:
-            _format = _config.files["backup_filename_format.txt"][0]
+    if "backup_filename_format" in _config.files:
+        if len(_config.files["backup_filename_format"]) > 0:
+            _format = _config.files["backup_filename_format"][0]
     if not _format:
         _format = default_format
     filename = _format
@@ -62,7 +62,7 @@ def make_archive(_config):
     if not os.path.exists(configuration_backups_folder):
         os.makedirs(configuration_backups_folder)
 
-    for backup_path in _config.files["path.txt"]:
+    for backup_path in _config.files["path"]:
         z = zipfile.ZipFile(archive_path, "w")
         for root, dirs, files in os.walk(backup_path):
             for file in files:

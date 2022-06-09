@@ -21,8 +21,7 @@ def main():
         now = datetime.datetime.now()
         now_hours_minutes = now.strftime("%H:%M")
         for _config in configs:
-            for time in _config.files["time.txt"]:
-                backup(_config, time)
+            for time in _config.files["time"]:
                 if now_hours_minutes == time or True:
                     future_list.append(executor.submit(backup, _config, time))
                     _time.sleep(5)
