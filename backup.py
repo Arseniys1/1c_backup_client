@@ -10,6 +10,16 @@ import zipfile
 from _path import normalize_path, normalize_dir
 
 
+compression = zipfile.ZIP_STORED
+
+if config["ZIP_COMPRESSION"] == "zlib":
+    compression = zipfile.ZIP_DEFLATED
+elif config["ZIP_COMPRESSION"] == "bz2":
+    compression = zipfile.ZIP_BZIP2
+elif config["ZIP_COMPRESSION"] == "lzma":
+    compression = zipfile.ZIP_LZMA
+
+
 def backup(_config, time):
     logger.info("Запуск бэкапа: " + _config.dir_name + " Время: " + time)
 
@@ -83,9 +93,9 @@ def make_archive(_config):
                             ignore = True
                             break
                     if not ignore:
-                        z.write(file_path)
+                        z.write(file_path, compress_type=compression)
                 else:
-                    z.write(file_path)
+                    z.write(file_path, compress_type=compression)
         archive_paths.append(archive_path)
         z.close()
     return archive_paths
