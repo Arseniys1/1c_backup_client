@@ -2,21 +2,13 @@ from config import config, ROOT_DIR, CONFIG_PATH, CONFIGS_PATH, LOGS_PATH, confi
     FASTAPI_UVICORN_LOG_INI
 from log import configure_server_logs
 from fastapi import FastAPI
+from server_routes import router as server_routes_router
 import uvicorn
 
 logger = configure_server_logs()
 
 app = FastAPI()
-
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+app.include_router(server_routes_router)
 
 
 def main():
