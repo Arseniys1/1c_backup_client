@@ -1,10 +1,11 @@
 from config import config, ROOT_DIR, CONFIG_PATH, CONFIGS_PATH, LOGS_PATH, configs, configs_dirs
-from log import logger
+from log import configure_client_logs
 from backup import backup, launch_scripts
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import datetime
 import time as _time
 
+logger = configure_client_logs()
 
 logger.info("Найдены директории с файлами конфигурации: " + ",".join(configs_dirs))
 for config_obj in configs:

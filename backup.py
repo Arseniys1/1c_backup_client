@@ -3,12 +3,13 @@ import os
 
 from config import BACKUPS_PATH, config
 from config_object import ConfigConstruct
-from log import logger
+from log import configure_client_logs
 import subprocess
 import zipfile
 
 from _path import normalize_path, normalize_dir
 
+logger = configure_client_logs()
 
 compression = zipfile.ZIP_STORED
 

@@ -7,8 +7,11 @@ from exceptions.ConfigFileNotFound import ConfigFileNotFound
 ROOT_DIR = os.path.abspath(os.curdir)
 SYSTEM_ROOT_DIR = os.path.abspath(os.sep)
 CONFIG_PATH = ROOT_DIR + "\\config.env"
+SERVER_CONFIG_PATH = ROOT_DIR + "\\server.env"
+FASTAPI_UVICORN_LOG_INI = ROOT_DIR + "\\fastapi_uvicorn_log.ini"
 CONFIGS_PATH = ROOT_DIR + "\\configs"
 LOGS_PATH = ROOT_DIR + "\\logs"
+SERVER_LOGS_PATH = ROOT_DIR + "\\server_logs"
 BACKUPS_PATH = ROOT_DIR + "\\backups"
 
 configs_dirs = [config_dir for config_dir in os.listdir(CONFIGS_PATH) if
@@ -67,7 +70,7 @@ def read_config(config_dir, config_path):
 
 
 def config_types(_config):
-    int_keys = ["SERVER_PING_TIMEOUT", "SERVER_PING_TIME", "MAX_WORKERS"]
+    int_keys = ["SERVER_PING_TIMEOUT", "SERVER_PING_TIME", "MAX_WORKERS", "SERVER_PORT"]
     bool_keys = ["SERVER_PING", "DELETE_ARCHIVES_AFTER_BACKUP"]
     for key in _config.keys():
         for _type_key in int_keys:
@@ -90,6 +93,9 @@ def replace_in_line(config_dir, line):
 
 config = dotenv_values(CONFIG_PATH)
 config = config_types(config)
+
+server_config = dotenv_values(SERVER_CONFIG_PATH)
+server_config = config_types(server_config)
 
 configs = load_configs()
 main_configs = load_config()
