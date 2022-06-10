@@ -75,7 +75,7 @@ def config_types(_config):
                 _config[key] = int(_config[key])
         for _type_key in bool_keys:
             if key == _type_key:
-                _config[key] = bool(_config[key])
+                _config[key] = bool(int(_config[key]))
     return _config
 
 
