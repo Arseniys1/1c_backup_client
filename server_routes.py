@@ -33,4 +33,7 @@ async def upload_backup(backup_files: List[UploadFile]):
         async with aiofiles.open(server_backups_path + "\\" + backup_file.filename, 'wb') as backup_file_out:
             content = await backup_file.read()
             await backup_file_out.write(content)
-    return {"success": True, "filenames": filenames}
+    logger.info("Сохранил бэкапы в директорию: " + server_backups_path)
+    return success_response({
+        "filenames": filenames
+    }, "Сохранил бэкапы")
