@@ -1,4 +1,4 @@
-from config import config, ROOT_DIR, CONFIG_PATH, CONFIGS_PATH, LOGS_PATH, configs, configs_dirs
+from config import config, ROOT_DIR, CONFIG_PATH, CUSTOM_CONFIGS_PATH, LOGS_PATH, configs, custom_configs_dirs
 from log import configure_client_logs
 from backup import backup, launch_scripts
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -8,7 +8,7 @@ import time as _time
 
 logger = configure_client_logs()
 
-logger.info("Найдены директории с файлами конфигурации: " + ",".join(configs_dirs))
+logger.info("Найдены директории с файлами конфигурации: " + ",".join(custom_configs_dirs))
 for config_obj in configs:
     for file in config_obj.files.keys():
         logger.info("Найден файл конфигурации: " + config_obj.dir_name + " -> " + file)

@@ -1,4 +1,4 @@
-from config import config, ROOT_DIR, CONFIG_PATH, CONFIGS_PATH, LOGS_PATH, configs, configs_dirs, server_config, \
+from config import config, ROOT_DIR, CONFIG_PATH, CUSTOM_CONFIGS_PATH, LOGS_PATH, configs, custom_configs_dirs, server_config, \
     main_configs, \
     FASTAPI_UVICORN_LOG_INI
 from log import configure_server_logs

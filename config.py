@@ -15,18 +15,26 @@ SYSTEM_ROOT_DIR = os.path.abspath(os.sep)
 CONFIG_PATH = ROOT_DIR + "\\config.env"
 SERVER_CONFIG_PATH = ROOT_DIR + "\\server.env"
 FASTAPI_UVICORN_LOG_INI = ROOT_DIR + "\\fastapi_uvicorn_log.ini"
-CONFIGS_PATH = ROOT_DIR + "\\configs"
+CUSTOM_CONFIGS_PATH = ROOT_DIR + "\\configs"
 LOGS_PATH = ROOT_DIR + "\\logs"
 SERVER_LOGS_PATH = ROOT_DIR + "\\server_logs"
 BACKUPS_PATH = ROOT_DIR + "\\backups"
+SERVER_BACKUPS_PATH = ROOT_DIR + "\\server_backups"
 
-configs_dirs = [config_dir for config_dir in os.listdir(CONFIGS_PATH) if
-                os.path.isdir(CONFIGS_PATH + "\\" + config_dir)]
+custom_configs_dirs = [config_dir for config_dir in os.listdir(CUSTOM_CONFIGS_PATH) if
+                       os.path.isdir(CUSTOM_CONFIGS_PATH + "\\" + config_dir)]
+
+MAIN_CUSTOM_CONFIGS_FILE_NAMES = [
+    "path",
+    "time",
+    "servers",
+]
 
 MAIN_CONFIGS_FILE_NAMES = [
-    "path.txt",
-    "time.txt",
-    "servers.txt",
+    "server_available_content_types",
+    "server_backups_save",
+    "clients",
+    "servers",
 ]
 
 CONFIG_FILE_EXTENSIONS = [
@@ -35,24 +43,36 @@ CONFIG_FILE_EXTENSIONS = [
 ]
 
 
-def load_configs():
+def load_configs(dir_path, check_main_config_files=False, main_config_files=None):
     _configs = []
+    configs_dirs = [config_dir for config_dir in os.listdir(dir_path) if
+                    os.path.isdir(dir_path + "\\" + config_dir)]
     for config_dir in configs_dirs:
-        _configs.append(make_cfg_object_from_dir(config_dir, CONFIGS_PATH + "\\" + config_dir))
+        _configs.append(make_cfg_object_from_dir(config_dir, dir_path + "\\" + config_dir, check_main_config_files,
+                                                 main_config_files))
     return _configs
 
 
-def load_config():
-    return make_cfg_object_from_dir(os.path.basename(ROOT_DIR), ROOT_DIR, False)
+def load_config(config_dir, dir_path, check_main_config_files=False, main_config_files=None):
+    return make_cfg_object_from_dir(config_dir, dir_path, check_main_config_files, main_config_files)
 
 
-def make_cfg_object_from_dir(config_dir, dir_path, check_main_config_files=True):
+def make_cfg_object_from_dir(config_dir, dir_path, check_main_config_files=False, main_config_files=None):
     cfg_object = Config(config_dir)
     listdir = os.listdir(dir_path)
-    for main_config_file_name in MAIN_CONFIGS_FILE_NAMES:
-        if main_config_file_name not in listdir and check_main_config_files:
-            raise ConfigFileNotFound(
-                "В папке конфигов: " + config_dir + " не найден основной файл: " + main_config_file_name + " создайте его")
+    if check_main_config_files:
+        for main_config_file_name in main_config_files:
+            main_config_file_names_with_ext = [main_config_file_name + config_file_extension for config_file_extension
+                                               in
+                                               CONFIG_FILE_EXTENSIONS]
+            config_found = False
+            for main_config_file_name_with_ext in main_config_file_names_with_ext:
+                if main_config_file_name_with_ext in listdir:
+                    config_found = True
+                    break
+            if not config_found:
+                raise ConfigFileNotFound(
+                    "В папке конфигов: " + config_dir + " не найден основной файл: " + main_config_file_name + " создайте его")
     for config_file in listdir:
         config_file_name, config_file_ext = os.path.splitext(config_file)
         if config_file_ext not in CONFIG_FILE_EXTENSIONS:
@@ -91,7 +111,7 @@ def config_types(_config):
 def replace_in_line(config_dir, line):
     line = line.replace("\n", "")
     line = line.replace("\r\n", "")
-    line = line.replace("${CURRENT_CONFIG_DIR}", CONFIGS_PATH + "\\" + config_dir)
+    line = line.replace("${CURRENT_CONFIG_DIR}", CUSTOM_CONFIGS_PATH + "\\" + config_dir)
     line = line.replace("${ROOT_DIR}", ROOT_DIR)
     line = line.replace("${SYSTEM_ROOT_DIR}", SYSTEM_ROOT_DIR)
     return line
@@ -129,7 +149,5 @@ config = config_types(config)
 server_config = dotenv_values(SERVER_CONFIG_PATH)
 server_config = config_types(server_config)
 
-configs = configs_handlers(load_configs())
-main_configs = config_handlers(load_config())
-
-
+configs = configs_handlers(load_configs(CUSTOM_CONFIGS_PATH, True, MAIN_CUSTOM_CONFIGS_FILE_NAMES))
+main_configs = config_handlers(load_config(os.path.basename(ROOT_DIR), ROOT_DIR, True, MAIN_CONFIGS_FILE_NAMES))
