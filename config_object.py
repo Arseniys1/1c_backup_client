@@ -5,8 +5,10 @@ class Config:
     def __init__(self, dir_name) -> None:
         self.dir_name = dir_name
         self.files = {}
+        self.original_file_names = {}
 
-    def add_file(self, file_name, file_lines):
+    def add_file(self, file_name, file_ext, file_lines):
+        self.original_file_names[file_name] = file_name + file_ext
         self.files[file_name] = self.search_constructions(file_lines)
 
     @staticmethod

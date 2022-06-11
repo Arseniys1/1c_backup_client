@@ -28,6 +28,7 @@ MAIN_CUSTOM_CONFIGS_FILE_NAMES = [
     "path",
     "time",
     "servers",
+    "config",
 ]
 
 MAIN_CONFIGS_FILE_NAMES = [
@@ -40,6 +41,7 @@ MAIN_CONFIGS_FILE_NAMES = [
 CONFIG_FILE_EXTENSIONS = [
     ".txt",
     ".conf",
+    ".env",
 ]
 
 
@@ -77,8 +79,7 @@ def make_cfg_object_from_dir(config_dir, dir_path, check_main_config_files=False
         config_file_name, config_file_ext = os.path.splitext(config_file)
         if config_file_ext not in CONFIG_FILE_EXTENSIONS:
             continue
-        cfg_object.add_file(config_file_name,
-                            read_config(config_dir, dir_path + "\\" + config_file))
+        cfg_object.add_file(config_file_name, config_file_ext, read_config(config_dir, dir_path + "\\" + config_file))
     return cfg_object
 
 
@@ -96,8 +97,8 @@ def read_config(config_dir, config_path):
 
 
 def config_types(_config):
-    int_keys = ["SERVER_PING_TIMEOUT", "SERVER_PING_TIME", "MAX_WORKERS", "SERVER_PORT"]
-    bool_keys = ["SERVER_PING", "DELETE_ARCHIVES_AFTER_BACKUP"]
+    int_keys = ["SERVER_PING_TIMEOUT", "SERVER_PING_TIME", "MAX_BACKUP_WORKERS", "MAX_UPLOAD_WORKERS", "SERVER_PORT"]
+    bool_keys = ["SERVER_PING", "DELETE_ARCHIVES_AFTER_BACKUP", "UPLOAD_BACKUPS_TO_SERVER"]
     for key in _config.keys():
         for _type_key in int_keys:
             if key == _type_key:
@@ -117,29 +118,36 @@ def replace_in_line(config_dir, line):
     return line
 
 
-def config_split_line_with_space(file_lines):
+def config_split_line_with_space(file_name, file_lines, dir_path, _config):
     for index, line in enumerate(file_lines):
         file_lines[index] = line.split(" ")
     return file_lines
 
 
-def config_handlers(_config):
+def config_env_load(file_name, file_lines, dir_path, _config):
+    config_env = dotenv_values(dir_path + "\\" + _config.original_file_names[file_name])
+    config_env = config_types(config_env)
+    return config_env
+
+
+def config_handlers(dir_path, _config):
     handlers = {
         "clients": [config_split_line_with_space],
         "servers": [config_split_line_with_space],
+        "config": [config_env_load],
     }
     for file_name, file_lines in _config.files.items():
         for handler_file_name, func_handlers in handlers.items():
             if file_name == handler_file_name:
                 for func_handler in func_handlers:
-                    handler_result = func_handler(file_lines)
+                    handler_result = func_handler(file_name, file_lines, dir_path, _config)
                     _config.files[file_name] = handler_result
     return _config
 
 
-def configs_handlers(_configs):
+def configs_handlers(dir_path, _configs):
     for index, _config in enumerate(_configs):
-        _configs[index] = config_handlers(_config)
+        _configs[index] = config_handlers(dir_path + "\\" + _config.dir_name, _config)
     return _configs
 
 
@@ -149,5 +157,6 @@ config = config_types(config)
 server_config = dotenv_values(SERVER_CONFIG_PATH)
 server_config = config_types(server_config)
 
-configs = configs_handlers(load_configs(CUSTOM_CONFIGS_PATH, True, MAIN_CUSTOM_CONFIGS_FILE_NAMES))
-main_configs = config_handlers(load_config(os.path.basename(ROOT_DIR), ROOT_DIR, True, MAIN_CONFIGS_FILE_NAMES))
+configs = configs_handlers(CUSTOM_CONFIGS_PATH, load_configs(CUSTOM_CONFIGS_PATH, True, MAIN_CUSTOM_CONFIGS_FILE_NAMES))
+main_configs = config_handlers(ROOT_DIR,
+                               load_config(os.path.basename(ROOT_DIR), ROOT_DIR, True, MAIN_CONFIGS_FILE_NAMES))

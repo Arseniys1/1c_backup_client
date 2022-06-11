@@ -14,7 +14,7 @@ for config_obj in configs:
         logger.info("Найден файл конфигурации: " + config_obj.dir_name + " -> " + file)
 
 
-executor = ThreadPoolExecutor(max_workers=config["MAX_WORKERS"])
+executor = ThreadPoolExecutor(max_workers=config["MAX_BACKUP_WORKERS"])
 future_list = []
 
 
