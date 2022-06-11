@@ -2,6 +2,7 @@ from config import config, ROOT_DIR, CONFIG_PATH, CONFIGS_PATH, LOGS_PATH, confi
 from log import configure_client_logs
 from backup import backup, launch_scripts
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from logotype import print_logotype
 import datetime
 import time as _time
 
@@ -18,6 +19,7 @@ future_list = []
 
 
 def main():
+    print_logotype()
     while True:
         now = datetime.datetime.now()
         now_hours_minutes = now.strftime("%H:%M")

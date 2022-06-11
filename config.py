@@ -5,6 +5,12 @@ import os
 from exceptions.ConfigFileNotFound import ConfigFileNotFound
 
 ROOT_DIR = os.path.abspath(os.curdir)
+# исправляет ROOT_DIR при запуске скриптов
+root_dir_normalized = os.path.normpath(ROOT_DIR)
+root_dir_split = root_dir_normalized.split(os.sep)
+if root_dir_split[-1] == "scripts":
+    ROOT_DIR = os.sep.join(root_dir_split[:-1])
+
 SYSTEM_ROOT_DIR = os.path.abspath(os.sep)
 CONFIG_PATH = ROOT_DIR + "\\config.env"
 SERVER_CONFIG_PATH = ROOT_DIR + "\\server.env"
@@ -91,13 +97,39 @@ def replace_in_line(config_dir, line):
     return line
 
 
+def config_split_line_with_space(file_lines):
+    for index, line in enumerate(file_lines):
+        file_lines[index] = line.split(" ")
+    return file_lines
+
+
+def config_handlers(_config):
+    handlers = {
+        "clients": [config_split_line_with_space],
+        "servers": [config_split_line_with_space],
+    }
+    for file_name, file_lines in _config.files.items():
+        for handler_file_name, func_handlers in handlers.items():
+            if file_name == handler_file_name:
+                for func_handler in func_handlers:
+                    handler_result = func_handler(file_lines)
+                    _config.files[file_name] = handler_result
+    return _config
+
+
+def configs_handlers(_configs):
+    for index, _config in enumerate(_configs):
+        _configs[index] = config_handlers(_config)
+    return _configs
+
+
 config = dotenv_values(CONFIG_PATH)
 config = config_types(config)
 
 server_config = dotenv_values(SERVER_CONFIG_PATH)
 server_config = config_types(server_config)
 
-configs = load_configs()
-main_configs = load_config()
+configs = configs_handlers(load_configs())
+main_configs = config_handlers(load_config())
 
 

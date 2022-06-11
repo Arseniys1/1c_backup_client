@@ -3,3 +3,4 @@ venv/
 logs/
 server_logs/
 backups/
+server_backups/
