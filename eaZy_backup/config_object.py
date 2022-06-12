@@ -75,7 +75,7 @@ class Config:
         search_result = variable_regex_compiled.search(line)
         if search_result:
             if len(search_result.groups()) == 2:
-                config_variable = ConfigVariable(search_result.group(1), search_result.group(2))
+                config_variable = ConfigVariable(search_result.group(1), search_result.group(2), line)
                 for variable in self.variables:
                     if config_variable.name == variable.name:
                         raise TwoVariablesWithTheSameName(
@@ -95,8 +95,21 @@ class ConfigConstruct:
         self.name = name
         self.values = values
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class ConfigVariable:
-    def __init__(self, name, value) -> None:
+    def __init__(self, name, value, value_without_parsing) -> None:
         self.name = name
         self.value = value
+        self.value_without_parsing = value_without_parsing
+
+    def __str__(self) -> str:
+        return self.value
+
+    def __repr__(self) -> str:
+        return self.value_without_parsing
+
+
+
