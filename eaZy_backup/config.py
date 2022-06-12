@@ -162,6 +162,7 @@ server_config = config_types(server_config)
 configs = configs_handlers(CUSTOM_CONFIGS_PATH, load_configs(CUSTOM_CONFIGS_PATH, True, MAIN_CUSTOM_CONFIGS_FILE_NAMES))
 main_configs = config_handlers(ROOT_DIR,
                                load_config(os.path.basename(ROOT_DIR), ROOT_DIR, True, MAIN_CONFIGS_FILE_NAMES))
+print(main_configs)
 
 
 

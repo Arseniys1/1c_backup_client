@@ -3,6 +3,7 @@ import re
 
 
 VARIABLE_REGEX = r"^([a-zA-Z0-9_-]+)=[\"]{0,1}(.*[^\"])[\"]{0,1}$"
+SKIP_EXTENSIONS = [".env"]
 
 
 class Config:
@@ -11,6 +12,8 @@ class Config:
         self.dir_path = dir_path
         self.files = {}
         self.original_file_names = {}
+        self.variables = []
+        self.constructions = []
 
     def add_file(self, file_name, file_ext, file_lines):
         self.original_file_names[file_name] = file_name + file_ext
@@ -20,6 +23,8 @@ class Config:
     def search_constructions(self, file_name, file_ext, file_lines):
         new_file_lines = []
         skip_construct_lines = []
+        if file_ext in SKIP_EXTENSIONS:
+            return new_file_lines
         for i, line in enumerate(file_lines):
             if line in skip_construct_lines:
                 continue
@@ -34,7 +39,9 @@ class Config:
                             construct_values = file_lines_slice[:ii]
                             for iii, construct_value in enumerate(construct_values):
                                 construct_values[iii] = remove_space(construct_value)
-                            new_file_lines.append(ConfigConstruct(construct_name, construct_values))
+                            config_construct = ConfigConstruct(construct_name, construct_values)
+                            self.constructions = config_construct
+                            new_file_lines.append(config_construct)
                             skip_construct_lines.append(_line)
                             break
                         else:
@@ -45,6 +52,8 @@ class Config:
 
     def search_variables(self, file_name, file_ext, file_lines):
         new_file_lines = []
+        if file_ext in SKIP_EXTENSIONS:
+            return new_file_lines
         for index, line in enumerate(file_lines):
             if type(line) is ConfigConstruct:
                 for _index, value in enumerate(line.values):
@@ -65,7 +74,9 @@ class Config:
         search_result = variable_regex_compiled.search(line)
         if search_result:
             if len(search_result.groups()) == 2:
-                return ConfigVariable(search_result.group(1), search_result.group(2))
+                config_variable = ConfigVariable(search_result.group(1), search_result.group(2))
+                self.variables.append(config_variable)
+                return config_variable
             else:
                 print(
                     "Игнорирую строку: \"" + line + "\" в файле: " +
