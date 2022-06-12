@@ -2,8 +2,9 @@ from eaZy_backup._path import normalize_dir, remove_space
 
 
 class Config:
-    def __init__(self, dir_name) -> None:
+    def __init__(self, dir_name, dir_path) -> None:
         self.dir_name = dir_name
+        self.dir_path = dir_path
         self.files = {}
         self.original_file_names = {}
 

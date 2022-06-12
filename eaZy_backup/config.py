@@ -60,7 +60,7 @@ def load_config(config_dir, dir_path, check_main_config_files=False, main_config
 
 
 def make_cfg_object_from_dir(config_dir, dir_path, check_main_config_files=False, main_config_files=None):
-    cfg_object = Config(config_dir)
+    cfg_object = Config(config_dir, dir_path)
     listdir = os.listdir(dir_path)
     if check_main_config_files:
         for main_config_file_name in main_config_files:
