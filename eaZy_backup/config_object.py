@@ -1,6 +1,7 @@
 from eaZy_backup._path import normalize_dir, remove_space
 import re
 
+from eaZy_backup.exceptions.TwoVariablesWithTheSameName import TwoVariablesWithTheSameName
 
 VARIABLE_REGEX = r"^([a-zA-Z0-9_-]+)=[\"]{0,1}(.*[^\"])[\"]{0,1}$"
 SKIP_EXTENSIONS = [".env"]
@@ -75,6 +76,11 @@ class Config:
         if search_result:
             if len(search_result.groups()) == 2:
                 config_variable = ConfigVariable(search_result.group(1), search_result.group(2))
+                for variable in self.variables:
+                    if config_variable.name == variable.name:
+                        raise TwoVariablesWithTheSameName(
+                            "Две переменные с одинаковым именем."
+                            " В одной директории конфигурации не может быть 2 переменных с одинаковым именем")
                 self.variables.append(config_variable)
                 return config_variable
             else:
@@ -94,6 +100,3 @@ class ConfigVariable:
     def __init__(self, name, value) -> None:
         self.name = name
         self.value = value
-
-
-
