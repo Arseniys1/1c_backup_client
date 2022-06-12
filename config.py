@@ -98,7 +98,7 @@ def read_config(config_dir, config_path):
 
 def config_types(_config):
     int_keys = ["SERVER_PING_TIMEOUT", "SERVER_PING_TIME", "MAX_BACKUP_WORKERS", "MAX_UPLOAD_WORKERS",
-                "MAX_MAKE_ARCHIVE_WORKERS", "SERVER_PORT"]
+                "MAX_MAKE_ARCHIVE_WORKERS", "SERVER_PORT", "LOCAL_BACKUPS_SAVE"]
     bool_keys = ["SERVER_PING", "DELETE_ARCHIVES_AFTER_BACKUP", "UPLOAD_BACKUPS_TO_SERVER"]
     for key in _config.keys():
         for _type_key in int_keys:

@@ -30,8 +30,8 @@ def main():
             executor = _config_data_association[1]
             future_list = _config_data_association[2]
             for time in _config.files["time"]:
-                # backup(_config, time)
-                # _time.sleep(1000)
+                backup(_config, time)
+                _time.sleep(1000)
                 if now_hours_minutes == time or True:
                     future_list.append(executor.submit(backup, _config, time))
                     # _time.sleep(1000)

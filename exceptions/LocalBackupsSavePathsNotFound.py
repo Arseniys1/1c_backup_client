@@ -1,0 +1,4 @@
+
+class LocalBackupsSavePathsNotFound(Exception):
+    pass
+

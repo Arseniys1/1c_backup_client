@@ -4,6 +4,8 @@ import os
 from association_list_search import association_list_search
 from config import BACKUPS_PATH, config, main_configs
 from config_object import ConfigConstruct
+from exceptions.LocalBackupsSavePathNotFound import LocalBackupsSavePathNotFound
+from exceptions.LocalBackupsSavePathsNotFound import LocalBackupsSavePathsNotFound
 from log import configure_client_logs
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import subprocess
@@ -33,6 +35,21 @@ def backup(_config, time):
 
     if upload_backups_to_server:
         upload_backups(archive_paths, backup_filenames, _config)
+
+    local_backups_save = False
+    if "LOCAL_BACKUPS_SAVE" in _config.files["config"]:
+        local_backups_save = _config.files["config"]["LOCAL_BACKUPS_SAVE"]
+        if local_backups_save:
+            if "local_backups_save_path" not in _config.files:
+                raise LocalBackupsSavePathNotFound("Не найден файл local_backups_save_path в директории конфигурации")
+            else:
+                if len(_config.files["local_backups_save_path"]) == 0:
+                    raise LocalBackupsSavePathsNotFound(
+                        "Файл local_backups_save_path не содержит пути для сохранения бэкапов."
+                        " Отключите LOCAL_BACKUPS_SAVE в файле config или заполните файл")
+    if local_backups_save:
+        logger.info("Сохраняю бэкапы локально: " + ",".join(backup_filenames))
+        save_local(archive_paths, backup_filenames, _config)
 
     delete_archives_after_backup = True
     if "DELETE_ARCHIVES_AFTER_BACKUP" in _config.files["config"]:
@@ -256,3 +273,9 @@ def upload_backup(archive_path, backup_filename, server, _config):
         logger.info("Ошибка при загрузке. Код ответа: " + str(
             response.status_code) + " Причина: " + response.reason + " Ответ сервера: " + response.text)
     return False
+
+
+def save_local(archive_paths, backup_filenames, _config):
+    pass
+
+
