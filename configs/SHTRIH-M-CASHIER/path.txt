@@ -1,2 +1,4 @@
 C:\1cdb
+path1="C:\1cdb"
+path2=C:\1cdb
 # Комментарии

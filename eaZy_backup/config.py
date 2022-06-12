@@ -136,6 +136,7 @@ def config_handlers(dir_path, _config):
         "clients": [config_split_line_with_space],
         "servers": [config_split_line_with_space],
         "config": [config_env_load],
+        "server": [config_env_load],
     }
     for file_name, file_lines in _config.files.items():
         for handler_file_name, func_handlers in handlers.items():
@@ -161,3 +162,6 @@ server_config = config_types(server_config)
 configs = configs_handlers(CUSTOM_CONFIGS_PATH, load_configs(CUSTOM_CONFIGS_PATH, True, MAIN_CUSTOM_CONFIGS_FILE_NAMES))
 main_configs = config_handlers(ROOT_DIR,
                                load_config(os.path.basename(ROOT_DIR), ROOT_DIR, True, MAIN_CONFIGS_FILE_NAMES))
+
+
+
