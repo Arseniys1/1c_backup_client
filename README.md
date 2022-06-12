@@ -1,3 +1,2 @@
-# eaZy_backup_client
-SHTRIH-M: CASHIER db backup
-Клиент бэкапера
+# eaZy_backup
+Локальные бэкапы, бэкапы на сервер.
