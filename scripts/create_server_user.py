@@ -1,8 +1,7 @@
 import random
 import string
 
-from config import ROOT_DIR, main_configs
-from logotype import print_logotype
+from eaZy_backup.logotype import print_logotype
 
 
 def create_server_user():

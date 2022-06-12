@@ -1,13 +1,13 @@
-from association_list_search import association_list_search
-from config import config, ROOT_DIR, CONFIG_PATH, CUSTOM_CONFIGS_PATH, LOGS_PATH, configs, custom_configs_dirs
-from log import configure_client_logs
-from backup import backup, launch_scripts
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from logotype import print_logotype
+from eaZy_backup.association_list_search import association_list_search
+from eaZy_backup.config import configs, custom_configs_dirs
+from eaZy_backup.log import configure_client_logs
+from eaZy_backup.backup import backup
+from concurrent.futures import as_completed
+from eaZy_backup.logotype import print_logotype
 import datetime
 import time as _time
 
-from parallels import make_thread_pool_executor
+from eaZy_backup.parallels import make_thread_pool_executor
 
 logger = configure_client_logs()
 

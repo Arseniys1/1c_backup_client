@@ -1,6 +1,6 @@
 import logging
 import datetime
-from config import LOGS_PATH, SERVER_LOGS_PATH
+from eaZy_backup.config import LOGS_PATH, SERVER_LOGS_PATH
 
 
 def configure_logs(log_file_name_format, logs_path):

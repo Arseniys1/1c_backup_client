@@ -1,9 +1,9 @@
 from fastapi import APIRouter, UploadFile
 from typing import List
-from config import main_configs, SERVER_BACKUPS_PATH
-from log import configure_server_logs
-from server_validation import check_content_types
-from server_api_responses import success_response, error_response
+from eaZy_backup.config import main_configs, SERVER_BACKUPS_PATH
+from eaZy_backup.log import configure_server_logs
+from eaZy_backup.server.server_validation import check_content_types
+from eaZy_backup.server.server_api_responses import success_response, error_response
 import aiofiles
 
 logger = configure_server_logs()

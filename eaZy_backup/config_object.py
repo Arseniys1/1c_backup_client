@@ -1,4 +1,4 @@
-from _path import normalize_dir, remove_space
+from eaZy_backup._path import normalize_dir, remove_space
 
 
 class Config:

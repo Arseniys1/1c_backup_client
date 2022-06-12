@@ -1,8 +1,8 @@
 from dotenv import dotenv_values
-from config_object import Config
+from eaZy_backup.config_object import Config
 import os
 
-from exceptions.ConfigFileNotFound import ConfigFileNotFound
+from eaZy_backup.exceptions.ConfigFileNotFound import ConfigFileNotFound
 
 ROOT_DIR = os.path.abspath(os.curdir)
 # исправляет ROOT_DIR при запуске скриптов

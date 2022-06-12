@@ -1,10 +1,9 @@
-from config import config, ROOT_DIR, CONFIG_PATH, CUSTOM_CONFIGS_PATH, LOGS_PATH, configs, custom_configs_dirs, server_config, \
-    main_configs, \
+from eaZy_backup.config import server_config, \
     FASTAPI_UVICORN_LOG_INI
-from log import configure_server_logs
+from eaZy_backup.log import configure_server_logs
 from fastapi import FastAPI
-from server_routes import router as server_routes_router
-from logotype import print_logotype
+from eaZy_backup.server.server_routes import router as server_routes_router
+from eaZy_backup.logotype import print_logotype
 import uvicorn
 
 logger = configure_server_logs()

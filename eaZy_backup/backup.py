@@ -1,20 +1,20 @@
 import datetime
 import os
 
-from association_list_search import association_list_search
-from config import BACKUPS_PATH, config, main_configs
-from config_object import ConfigConstruct
-from exceptions.LocalBackupsSavePathNotFound import LocalBackupsSavePathNotFound
-from exceptions.LocalBackupsSavePathsNotFound import LocalBackupsSavePathsNotFound
-from log import configure_client_logs
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from eaZy_backup.association_list_search import association_list_search
+from eaZy_backup.config import BACKUPS_PATH, main_configs
+from eaZy_backup.config_object import ConfigConstruct
+from eaZy_backup.exceptions.LocalBackupsSavePathNotFound import LocalBackupsSavePathNotFound
+from eaZy_backup.exceptions.LocalBackupsSavePathsNotFound import LocalBackupsSavePathsNotFound
+from eaZy_backup.log import configure_client_logs
+from concurrent.futures import as_completed
 import subprocess
 import zipfile
 import requests
 import mimetypes
 
-from _path import normalize_path, normalize_dir
-from parallels import make_thread_pool_executor
+from eaZy_backup._path import normalize_path, normalize_dir
+from eaZy_backup.parallels import make_thread_pool_executor
 
 logger = configure_client_logs()
 
