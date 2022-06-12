@@ -1,6 +1,7 @@
 import datetime
 import os
 
+from association_list_search import association_list_search
 from config import BACKUPS_PATH, config, main_configs
 from config_object import ConfigConstruct
 from log import configure_client_logs
@@ -11,20 +12,9 @@ import requests
 import mimetypes
 
 from _path import normalize_path, normalize_dir
+from parallels import make_thread_pool_executor
 
 logger = configure_client_logs()
-
-compression = zipfile.ZIP_STORED
-
-if config["ZIP_COMPRESSION"] == "zlib":
-    compression = zipfile.ZIP_DEFLATED
-elif config["ZIP_COMPRESSION"] == "bz2":
-    compression = zipfile.ZIP_BZIP2
-elif config["ZIP_COMPRESSION"] == "lzma":
-    compression = zipfile.ZIP_LZMA
-
-uploads_executor = ThreadPoolExecutor(max_workers=config["MAX_UPLOAD_WORKERS"])
-uploads_future_list = []
 
 
 def backup(_config, time):
@@ -35,14 +25,22 @@ def backup(_config, time):
         if not launch_scripts(_config.files["before_backup_scripts"], "Скрипт перед запуском бэкапа: "):
             logger.info("Отмена запуска бэкапа. Не все скрипты завершились с кодом 1")
 
-    archive_paths, backup_filenames = make_archive(_config)
+    archive_paths, backup_filenames, archive_paths_to_delete = make_archives(_config)
 
-    if _config.files["config"]["UPLOAD_BACKUPS_TO_SERVER"]:
-        upload_backups_result = upload_backups(archive_paths, backup_filenames, _config)
+    upload_backups_to_server = False
+    if "UPLOAD_BACKUPS_TO_SERVER" in _config.files["config"]:
+        upload_backups_to_server = _config.files["config"]["UPLOAD_BACKUPS_TO_SERVER"]
 
-    if config["DELETE_ARCHIVES_AFTER_BACKUP"]:
+    if upload_backups_to_server:
+        upload_backups(archive_paths, backup_filenames, _config)
+
+    delete_archives_after_backup = True
+    if "DELETE_ARCHIVES_AFTER_BACKUP" in _config.files["config"]:
+        delete_archives_after_backup = _config.files["config"]["DELETE_ARCHIVES_AFTER_BACKUP"]
+
+    if delete_archives_after_backup:
         logger.info("Удаляю архивы после бэкапа")
-        delete_archives(archive_paths)
+        delete_archives(archive_paths_to_delete)
 
     if "after_backup_scripts" in _config.files:
         logger.info("Запускаю скрипты после запуска бэкапа")
@@ -84,34 +82,89 @@ def backup_filename_format(_config):
     return filename
 
 
-def make_archive(_config):
+def make_archives(_config):
     backup_filename = backup_filename_format(_config)
     configuration_backups_folder = BACKUPS_PATH + "\\" + _config.dir_name
     if not os.path.exists(configuration_backups_folder):
         os.makedirs(configuration_backups_folder)
     archive_paths = []
     backup_filenames = []
+    archive_paths_to_delete = []
+    future_data_association_list = []
+    make_archive_executor = make_thread_pool_executor(_config, "MAX_MAKE_ARCHIVE_WORKERS")
+    make_archive_future_list = []
     for i, backup_path in enumerate(_config.files["path"]):
         backup_filename = str(i + 1) + "-" + backup_filename
         archive_path = configuration_backups_folder + "\\" + backup_filename
+        future = make_archive_executor.submit(make_archive, backup_path, backup_filename, archive_path, _config)
+        make_archive_future_list.append(future)
+        future_data_association_list.append((future, backup_path, backup_filename, archive_path))
+    for future in as_completed(make_archive_future_list):
+        result = future.result()
+        future_data_association = association_list_search(future, future_data_association_list)
+        backup_path = future_data_association[1]
+        backup_filename = future_data_association[2]
+        archive_path = future_data_association[3]
+        if result:
+            archive_paths.append(archive_path)
+            backup_filenames.append(backup_filename)
+        else:
+            logger.info(
+                "Ошибка создания архива бэкапа, пути директории бэкапа: " + backup_path + " Имя бэкапа: " +
+                backup_filename + " Путь архива бэкапа: " + archive_path + " Бэкап будет проигнорирован и удален")
+        archive_paths_to_delete.append(archive_path)
+        make_archive_future_list.remove(future)
+    return archive_paths, backup_filenames, archive_paths_to_delete
+
+
+def make_archive(backup_path, backup_filename, archive_path, _config):
+    compression = zipfile.ZIP_STORED
+
+    compression_in_config = None
+    if "ZIP_COMPRESSION" in _config.files["config"]:
+        compression_in_config = _config.files["config"]["ZIP_COMPRESSION"]
+
+    if compression_in_config == "zlib":
+        compression = zipfile.ZIP_DEFLATED
+    elif compression_in_config == "bz2":
+        compression = zipfile.ZIP_BZIP2
+    elif compression_in_config == "lzma":
+        compression = zipfile.ZIP_LZMA
+
+    try:
         z = zipfile.ZipFile(archive_path, "w")
-        for root, dirs, files in os.walk(backup_path):
-            for file in files:
-                file_path = os.path.join(root, file)
-                if "ignore" in _config.files:
-                    ignore = False
-                    for ignore_value in _config.files["ignore"]:
-                        if is_ignore(backup_path, file_path, ignore_value):
-                            ignore = True
-                            break
-                    if not ignore:
+    except Exception as e:
+        logger.info(
+            "Ошибка создания архива бэкапа, пути директории бэкапа: " + backup_path + " Имя бэкапа: " +
+            backup_filename + " Путь архива бэкапа: " + archive_path + " Ошибка: " + str(e))
+        return False
+    for root, dirs, files in os.walk(backup_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            if "ignore" in _config.files:
+                ignore = False
+                for ignore_value in _config.files["ignore"]:
+                    if is_ignore(backup_path, file_path, ignore_value):
+                        ignore = True
+                        break
+                if not ignore:
+                    try:
                         z.write(file_path, compress_type=compression)
-                else:
+                    except Exception as e:
+                        logger.info(
+                            "Ошибка создания архива бэкапа, пути директории бэкапа: " + backup_path + " Имя бэкапа: " +
+                            backup_filename + " Путь архива бэкапа: " + archive_path + " Ошибка: " + str(e))
+                        return False
+            else:
+                try:
                     z.write(file_path, compress_type=compression)
-        archive_paths.append(archive_path)
-        backup_filenames.append(backup_filename)
-        z.close()
-    return archive_paths, backup_filenames
+                except Exception as e:
+                    logger.info(
+                        "Ошибка создания архива бэкапа, пути директории бэкапа: " + backup_path + " Имя бэкапа: " +
+                        backup_filename + " Путь архива бэкапа: " + archive_path + " Ошибка: " + str(e))
+                    return False
+    z.close()
+    return True
 
 
 def is_ignore(backup_path, file_path, ignore_value):
@@ -163,6 +216,8 @@ def upload_backups(archive_paths, backup_filenames, _config):
             logger.info("Не нашел токен пользователя для сервера: " + " ".join(server) + " сервер будет проигнорирован")
             servers.pop(index)
     logger.info("Запускаю загрузку бэкапов")
+    uploads_executor = make_thread_pool_executor(_config, "MAX_UPLOAD_WORKERS")
+    uploads_future_list = []
     for server in servers:
         for index, archive_path in enumerate(archive_paths):
             backup_filename = backup_filenames[index]
