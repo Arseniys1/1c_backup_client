@@ -168,14 +168,27 @@ def upload_backups(archive_paths, backup_filenames, _config):
             backup_filename = backup_filenames[index]
             uploads_future_list.append(
                 uploads_executor.submit(upload_backup, archive_path, backup_filename, server, _config))
+    completed_uploads_count = 0
+    error_uploads_count = 0
     for future in as_completed(uploads_future_list):
         result = future.result()
+        if result:
+            completed_uploads_count += 1
+        else:
+            error_uploads_count += 1
+        uploads_future_list.remove(future)
+    logger.info("Загрузка бэкапов завершена. Количество успешных загрузок: " + str(
+        completed_uploads_count) + " Количество загрузок с ошибкой: " + str(error_uploads_count))
 
 
 def upload_backup(archive_path, backup_filename, server, _config):
     logger.info("Начинаю загрузку файла: " + backup_filename + " на сервер: " + server[0])
     files = {"backup_files": (backup_filename, open(archive_path, "rb"), mimetypes.guess_type(archive_path)[0])}
-    response = requests.post("http://" + server[0] + "/upload_backup", files=files)
+    try:
+        response = requests.post("http://" + server[0] + "/upload_backup", files=files)
+    except Exception as e:
+        logger.info("Ошибка подключения к серверу: " + server[0] + " Ошибка: " + str(e))
+        return False
     if response.status_code == 200:
         response_json = response.json()
         if response_json["success"]:
