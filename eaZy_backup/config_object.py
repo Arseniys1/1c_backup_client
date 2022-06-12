@@ -3,7 +3,7 @@ import re
 
 from eaZy_backup.exceptions.TwoVariablesWithTheSameName import TwoVariablesWithTheSameName
 
-VARIABLE_REGEX = r"^([a-zA-Z0-9_-]+)=[\"]{0,1}(.*[^\"])[\"]{0,1}$"
+VARIABLE_REGEX = r"^([a-zA-Z0-9_-]+)\s*=\s*[\"]{0,1}(.*[^\"])[\"]{0,1}\s*$"
 SKIP_EXTENSIONS = [".env"]
 
 
