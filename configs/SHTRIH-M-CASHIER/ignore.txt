@@ -1,6 +1,12 @@
 Новый текстовый документ.txt
 #test/
-path3="test/" {
+path3="test/" [
     123.txt
-}
+    ${ignore1}
+]
+${path3} [
+    ${ignore1}
+    ${ignore1}
+    ${ignore1}
+]
 # коммент

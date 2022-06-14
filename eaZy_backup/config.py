@@ -80,6 +80,7 @@ def make_cfg_object_from_dir(config_dir, dir_path, check_main_config_files=False
         if config_file_ext not in CONFIG_FILE_EXTENSIONS:
             continue
         cfg_object.add_file(config_file_name, config_file_ext, read_config(config_dir, dir_path + "\\" + config_file))
+    cfg_object.files_are_over()
     return cfg_object
 
 

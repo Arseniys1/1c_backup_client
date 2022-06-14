@@ -18,8 +18,9 @@ class Config:
 
     def add_file(self, file_name, file_ext, file_lines):
         self.original_file_names[file_name] = file_name + file_ext
-        self.files[file_name] = self.search_variables(file_name, file_ext,
-                                                      self.search_constructions(file_name, file_ext, file_lines))
+        file_lines = self.search_constructions(file_name, file_ext, file_lines)
+        file_lines = self.search_variables(file_name, file_ext, file_lines)
+        self.files[file_name] = file_lines
 
     def search_constructions(self, file_name, file_ext, file_lines):
         new_file_lines = []
@@ -29,14 +30,14 @@ class Config:
         for i, line in enumerate(file_lines):
             if line in skip_construct_lines:
                 continue
-            elif "{" in line:
+            elif "[" in line:
                 brace_i = len(line) - 1
-                if line[brace_i] == "{":
+                if line[brace_i] == "[":
                     construct_name = line[:brace_i]
                     construct_name = normalize_dir(construct_name)
                     file_lines_slice = file_lines[i + 1:]
                     for ii, _line in enumerate(file_lines_slice):
-                        if "}" in _line:
+                        if "]" in _line:
                             construct_values = file_lines_slice[:ii]
                             for iii, construct_value in enumerate(construct_values):
                                 construct_values[iii] = remove_space(construct_value)
@@ -93,6 +94,27 @@ class Config:
                     " неверный синтаксис")
         return None
 
+    def files_are_over(self):
+        self.replace_vars()
+
+    def replace_vars(self):
+        for file_name, file_lines in self.files.items():
+            new_file_lines = []
+            for i, line in enumerate(file_lines):
+                for var in self.variables:
+                    if type(line) is ConfigConstruct:
+                        line.name = self.replace_var_in_line(line.name, var)
+                        for ii, value in enumerate(line.values):
+                            line.values[ii] = self.replace_var_in_line(value, var)
+                    else:
+                        line = self.replace_var_in_line(line, var)
+                new_file_lines.append(line)
+            self.files[file_name] = new_file_lines
+
+    @staticmethod
+    def replace_var_in_line(line, var):
+        return line.replace("${" + var.name + "}", var.value)
+
 
 class ConfigConstruct:
     def __init__(self, name, values, without_parsing) -> None:
@@ -106,6 +128,3 @@ class ConfigVariable:
         self.name = name
         self.value = value
         self.without_parsing = without_parsing
-
-
-
