@@ -111,24 +111,24 @@ def make_archives(_config):
     make_archive_executor = make_thread_pool_executor(_config, "MAX_MAKE_ARCHIVE_WORKERS")
     make_archive_future_list = []
     for i, backup_path in enumerate(_config.files["path"]):
-        backup_filename = str(i + 1) + "-" + backup_filename
-        archive_path = configuration_backups_folder + "\\" + backup_filename
-        future = make_archive_executor.submit(make_archive, backup_path, backup_filename, archive_path, _config)
+        backup_filename_with_index = str(i + 1) + "-" + backup_filename
+        archive_path = configuration_backups_folder + "\\" + backup_filename_with_index
+        future = make_archive_executor.submit(make_archive, backup_path, backup_filename_with_index, archive_path, _config)
         make_archive_future_list.append(future)
-        future_data_association_list.append((future, backup_path, backup_filename, archive_path))
+        future_data_association_list.append((future, backup_path, backup_filename_with_index, archive_path))
     for future in as_completed(make_archive_future_list):
         result = future.result()
         future_data_association = association_list_search(future, future_data_association_list)
         backup_path = future_data_association[1]
-        backup_filename = future_data_association[2]
+        backup_filename_with_index = future_data_association[2]
         archive_path = future_data_association[3]
         if result:
             archive_paths.append(archive_path)
-            backup_filenames.append(backup_filename)
+            backup_filenames.append(backup_filename_with_index)
         else:
             logger.info(
                 "Ошибка создания архива бэкапа, пути директории бэкапа: " + backup_path + " Имя бэкапа: " +
-                backup_filename + " Путь архива бэкапа: " + archive_path + " Бэкап будет проигнорирован и удален")
+                backup_filename_with_index + " Путь архива бэкапа: " + archive_path + " Бэкап будет проигнорирован и удален")
         archive_paths_to_delete.append(archive_path)
         make_archive_future_list.remove(future)
     return archive_paths, backup_filenames, archive_paths_to_delete
