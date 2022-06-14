@@ -40,7 +40,7 @@ class Config:
                             construct_values = file_lines_slice[:ii]
                             for iii, construct_value in enumerate(construct_values):
                                 construct_values[iii] = remove_space(construct_value)
-                            config_construct = ConfigConstruct(construct_name, construct_values)
+                            config_construct = ConfigConstruct(construct_name, construct_values, None)
                             self.constructions = config_construct
                             new_file_lines.append(config_construct)
                             skip_construct_lines.append(_line)
@@ -57,15 +57,18 @@ class Config:
             return new_file_lines
         for index, line in enumerate(file_lines):
             if type(line) is ConfigConstruct:
+                parse_variable_result = self.parse_variable(line.name, file_name, file_ext)
+                if parse_variable_result:
+                    line.name = parse_variable_result.value
                 for _index, value in enumerate(line.values):
                     parse_variable_result = self.parse_variable(value, file_name, file_ext)
                     if parse_variable_result:
-                        line.values[_index] = parse_variable_result
+                        line.values[_index] = parse_variable_result.value
                 new_file_lines.append(line)
             else:
                 parse_variable_result = self.parse_variable(line, file_name, file_ext)
                 if parse_variable_result:
-                    new_file_lines.append(parse_variable_result)
+                    new_file_lines.append(parse_variable_result.value)
                 else:
                     new_file_lines.append(line)
         return new_file_lines
@@ -88,28 +91,21 @@ class Config:
                     "Игнорирую строку: \"" + line + "\" в файле: " +
                     self.dir_path + "\\" + file_name + file_ext +
                     " неверный синтаксис")
+        return None
 
 
 class ConfigConstruct:
-    def __init__(self, name, values) -> None:
+    def __init__(self, name, values, without_parsing) -> None:
         self.name = name
         self.values = values
-
-    def __str__(self) -> str:
-        return self.name
+        self.without_parsing = without_parsing
 
 
 class ConfigVariable:
-    def __init__(self, name, value, value_without_parsing) -> None:
+    def __init__(self, name, value, without_parsing) -> None:
         self.name = name
         self.value = value
-        self.value_without_parsing = value_without_parsing
-
-    def __str__(self) -> str:
-        return self.value
-
-    def __repr__(self) -> str:
-        return self.value_without_parsing
+        self.without_parsing = without_parsing
 
 
 
